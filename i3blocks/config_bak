@@ -1,0 +1,114 @@
+# i3blocks config file
+
+[Kernel]
+label=<span color="orange"></span>
+markup=pango
+#command=uname -r | awk '{print substr ($0, 0, 10)}'
+command=uname -r | awk '{print $1}'
+interval=once
+color=#C9E3DB
+
+[DISK]
+#abel=<span color="orange">/</span>
+#markup=pango 
+#command=df -h / | awk '/\//{ printf("%4s \n", $4, $2) }'
+#interval=2
+#color=#C9E3DB
+
+[disk-home]
+label=<span color="orange"></span>
+markup=pango
+#label= 
+#command=du -sh ~/ | awk '{print $1}'
+command=df /dev/nvme0n1p2 | awk 'FNR == 2{print $5'}
+interval=2
+color=#C9E3DB
+
+[CPU]
+label=<span color="orange">CPU</span>
+markup=pango
+#command=~/.config/i3blocks/script_files/cpu_usage.sh
+#command=~/.config/i3blocks/cpu/cpu_info.sh
+#command=mpstat -o JSON -u 1 1 | jq '.sysstat.hosts[0].statistics[0]["cpu-load"][0].idle'
+command=mpstat 1 1 | awk '$3 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $3 ~ /all/ { printf("%d%",100 - $field)}' 
+color=#C9E3DB
+interval=1
+#instance=sensors -u
+
+[TEMP]
+label=<span color="orange"></span>
+markup=pango
+#command=~/.config/i3blocks/script_files/temperature.sh
+command=sensors | sed -rn 's/.*Core 0:\s+([^ ]+).*/\1/p'
+color=#C9E3DB
+interval=1
+
+[MEM]
+label=<span color="orange">RAM</span>
+markup=pango
+command=free -h | awk '/Mem:/ { printf("%5s/%s \n", $3, $2) }'
+interval=1
+#color=#FEC925
+color=#C9E3DB
+
+[SWAP]
+#label=<span color="orange"></span>
+label=<span color="orange">SWP</span>
+markup=pango
+command=free -h | awk '/^Swap:/{print $3}'
+interval=1
+color=#C9E3DB
+
+[BATTERY]
+#label=<span color="green"></span>
+#label=<span color="green"></span>
+label=<span color="green"></span>
+markup=pango
+command=~/.config/i3blocks/battery/battery_info.sh
+#command=~/.config/i3blocks/battery/battery.sh | awk '{print $0}'
+#color=#00B4EB
+color=#FF6600
+interval=3
+
+[SOUND]
+#label= ♪:R
+label=<span color="green">♪</span>
+markup=pango
+#label= 
+command= ~/.config/i3blocks/sound/volume.sh | awk '{print $1}'
+interval=1
+color=#00B4EB
+
+[SCREEN]
+label=<span color="green"></span>
+markup=pango
+#command=~/.config/i3blocks/screen/screen.sh | awk '{print $1"%"}'
+command= xbacklight | cut -f1 -d'.'  | awk '{print $1"%"}'
+interval=5
+color=#00B4EB
+
+[wifi]
+label=<span color="green"></span>
+markup=pango
+command=nmcli -t -f SSID,SIGNAL dev wifi list | grep "^IZZI-10B2:" | cut -d : -f 2 | awk '{print $1"%"}'
+interval=2
+color=#00B4EB
+
+[TIME_DATE]
+command=date +" %a, %d %b - %H:%M"
+interval=1
+color=#ff0000
+
+[WEATHER]
+command= ~/.config/i3blocks/weather/weather.sh
+interval=1800
+color=#ff0000
+
+#[Poweroff]
+#interval=once
+#command=echo ""; [[ -z "${BLOCK_BUTTON}" ]]|| ~/.config/i3/bin/logout & exit
+#color=#ff0000
+
+[Keyboard]
+command=awk -F '"' '/XKBLAYOUT/{print "'"${1:-} "'"$2}' /etc/default/keyboard
+interval=once

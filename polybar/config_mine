@@ -1,0 +1,387 @@
+;==========================================================
+;
+;
+;   ██████╗  ██████╗ ██╗  ██╗   ██╗██████╗  █████╗ ██████╗
+;   ██╔══██╗██╔═══██╗██║  ╚██╗ ██╔╝██╔══██╗██╔══██╗██╔══██╗
+;   ██████╔╝██║   ██║██║   ╚████╔╝ ██████╔╝███████║██████╔╝
+;   ██╔═══╝ ██║   ██║██║    ╚██╔╝  ██╔══██╗██╔══██║██╔══██╗
+;   ██║     ╚██████╔╝███████╗██║   ██████╔╝██║  ██║██║  ██║
+;   ╚═╝      ╚═════╝ ╚══════╝╚═╝   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
+;
+;
+;   To learn more about how to configure Polybar
+;   go to https://github.com/jaagr/polybar
+;
+;   The README contains alot of information
+;
+;==========================================================
+
+[colors]
+;background = ${xrdb:color0:#222}
+background = #222
+background-alt = #444
+;foreground = ${xrdb:color7:#222}
+foreground = #dfdfdf
+;foreground-alt = #555
+foreground-alt = #FF0000
+primary = #ffb52a
+secondary = #e60053
+alert = #bd2c40
+
+[bar/example]
+;monitor = ${env:MONITOR:HDMI-1}
+;monitor = eDP1
+width = 100%
+height = 20
+;offset-x = 1%
+;offset-y = 1%
+radius = 6.0
+fixed-center = false
+
+background = ${colors.background}
+foreground = ${colors.foreground}
+
+line-size = 3
+line-color = #f00
+
+border-size = 4
+border-color = #00000000
+
+padding-left = 1.5
+padding-right = 1.5
+
+module-margin-left = 2
+module-margin-right = 2
+
+font-0 = FontAwesome5Free:style=Solid:pixelsize=14:antialias=false;3
+font-1 = Font Awesome 6 Free,Font Awesome 6 Free Regular:style=Regular
+font-2 =  Font Awesome 6 Free,Font Awesome 6 Free Solid:style=Solid
+font-3 = Font Awesome 6 Brands,Font Awesome 6 Brands Regular:style=Regular
+font-4 = FontAwesome:style=Regular
+font-5 = Font Awesome 6 Free,Font Awesome 6 Free Regular:style=Regular
+
+modules-left = powermenu i3
+modules-right = pulseaudio xbacklight  wlan  weather date updates-pacman-aurhelper
+modules-center = filesystem memory swap cpu temperature fan battery xkeyboard 
+; kernel
+
+tray-position = right
+tray-padding = 2
+;tray-background = #0063ff
+
+;wm-restack = i3
+
+;override-redirect = true
+
+;scroll-up = bspwm-desknext
+;scroll-down = bspwm-deskprev
+
+;scroll-up = i3wm-wsnext
+;scroll-down = i3wm-wsprev
+
+cursor-click = pointer
+cursor-scroll = ns-resize
+
+enable-ipc = true
+
+[module/kernel]
+type = custom/script
+exec = uname -r | awk '{print $1}'
+format-prefix = "kernel "
+#format-prefix = " "
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+
+;[module/xwindow]
+;type = internal/xwindow
+;label = %title:0:30:...%
+
+[module/xkeyboard]
+type = internal/xkeyboard
+blacklist-0 = num lock
+format-prefix = " "
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+
+
+
+[module/filesystem]
+type = custom/script
+exec = df /dev/sda3 | awk 'FNR == 2{print $5'}
+interval = 25
+format-prefix = " "
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+
+[module/i3]
+type = internal/i3
+
+;label-focused = %index%
+label-focused-foreground = #f90000
+label-focused-background = #3f3f3f
+label-focused-underline = #fba922
+label-focused-padding = .5
+
+; Only show workspaces defined on the same output as the bar
+;
+; Useful if you want to show monitor specific workspaces
+; on different bars
+;
+; Default: false
+pin-workspaces = fabel-focused = %index%
+
+; This will split the workspace name on ':'
+; Default: false
+strip-wsnumbers = true
+
+; Sort the workspaces by index instead of the default
+; sorting that groups the workspaces by output
+; Default: false
+index-sort = true
+
+; Create click handler used to focus workspace
+; Default: true
+enable-click = true
+
+; Create scroll handlers used to cycle workspaces
+; Default: true
+enable-scroll = false
+
+; Wrap around when reaching the first/last workspace
+; Default: true
+wrapping-scroll = false
+
+; Set the scroll cycle direction 
+; Default: true
+reverse-scroll = false
+
+; Use fuzzy (partial) matching on labels when assigning 
+; icons to workspaces
+; Example: code;♚ will apply the icon to all workspaces 
+; containing 'code' in the label
+; Default: false
+fuzzy-match = true
+
+[module/memory]
+;type = internal/cpu
+type = custom/script
+exec = free -h | awk '/Mem:/ { printf("%5s/%s \n", $3, $2) }'
+interval = 2
+format-prefix = "RAM "
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+;label = %percentage:2%%
+
+[module/cpu]
+;type = internal/memory
+type = custom/script
+exec = mpstat 1 1 | awk '$3 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $3 ~ /all/ { printf("%d%",100 - $field)}' 
+interval = 2
+;format-prefix = " "
+format-prefix = "CPU "
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+;label = %percentage_used%%
+
+[module/swap]
+type = custom/script
+exec = free -h | awk '/^Swap:/{print $3}'
+interval=2
+format-prefix ="SWP "
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+
+[module/wlan]
+;type = internal/network
+;interface = wlan0
+;interval = 3.0
+type = custom/script
+exec = nmcli -t -f SSID,SIGNAL dev wifi list | grep "^IZZI-10B2:" | cut -d : -f 2 | awk '{print $1"%"}'
+interval = 2
+format-prefix = " "
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+
+format-connected = <ramp-signal> <label-connected>
+format-connected-underline = #9f78e1
+label-connected = %essid%
+
+format-disconnected =
+;format-disconnected = <label-disconnected>
+;format-disconnected-underline = ${self.format-connected-underline}
+;label-disconnected = %ifname% disconnected
+;label-disconnected-foreground = ${colors.foreground-alt}
+
+ramp-signal-0 = 
+ramp-signal-1 = 
+ramp-signal-2 = 
+ramp-signal-3 = 
+ramp-signal-4 = 
+ramp-signal-foreground = ${colors.foreground-alt}
+
+;[module/eth]
+;type = internal/network
+;interface = eth0
+;interval = 3.0
+
+;format-connected-underline = #55aa55
+;format-connected-prefix = " "
+;format-connected-prefix-foreground = ${colors.foreground-alt}
+;label-connected = %local_ip%
+
+;format-disconnected =
+;format-disconnected = <label-disconnected>
+;format-disconnected-underline = ${self.format-connected-underline}
+;label-disconnected = %ifname% disconnected
+;label-disconnected-foreground = ${colors.foreground-alt}
+
+[module/date]
+type = internal/date
+interval = 5
+
+date =
+date-alt = " %Y-%m-%d"
+
+time = %H:%M
+time-alt = %H:%M:%S
+
+format-prefix = ""
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+
+label = %date% %time%
+
+;[module/volume]
+;type = custom/script
+;exec =  echo " "
+;interval = 1
+;format-foreground = ${colors.foreground-alt}
+;format-underline = #fba922
+
+
+;[module/pulseaudio]
+;type = internal/pulseaudio
+;format-volume = <label-volume> <bar-volume>
+;label-volume = %percentage%%
+;label-volume-foreground = ${root.foreground}
+;format-underline = #fba922
+
+;label-muted =  muted
+;label-muted-foreground =  #f90000
+
+;bar-volume-width = 5
+;bar-volume-foreground-0 = #55aa55
+;bar-volume-foreground-1 = #55aa55
+;bar-volume-foreground-2 = #55aa55
+;bar-volume-foreground-3 = #55aa55
+;bar-volume-foreground-4 = #55aa55
+;bar-volume-foreground-5 = #f5a70a
+;bar-volume-foreground-6 = #ff5555
+;bar-volume-gradient = false
+;bar-volume-indicator = |
+;bar-volume-indicator-font = 2
+;bar-volume-fill = ─
+;bar-volume-fill-font = 2
+;bar-volume-empty = ─
+;bar-volume-empty-font = 2
+;bar-volume-empty-foreground = ${colors.foreground-alt}
+
+[module/pulseaudio]
+type = custom/script
+exec = pacmd list-sinks|grep -A 15 '* index'| awk '/volume: front/{print $5}'
+interval = 1
+format-prefix = "  "
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+
+
+[module/battery]
+type = custom/script
+exec = ~/.config/i3blocks/battery/battery_info.sh
+interval = 1
+format-prefix = " "
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+
+[module/temperature]
+type = custom/script
+#exec = ~/.config/custom-scripts/cpu-temp.sh
+exec = sensors | grep -i id | awk '{print $4 " °C"}' | cut -c 2,3,4,5,6,7,8,9
+interval = 3
+format-prefix = " "
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+
+[module/fan]
+type = custom/script
+exec = sensors | grep -i fan1 | awk '{print $2 " RPM"}'
+format-prefix = " "
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+
+[module/xbacklight]
+type = custom/script
+#exec = xbacklight | cut -f1 -d'.'  | awk '{print $1"%"}'
+exec = brightnessctl | grep % | awk '{print $4}' | sed 's/(//g' | sed 's/)//g'
+format-prefix = " "
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+
+[module/powermenu]
+type = custom/menu
+
+expand-right = true
+
+format-spacing = 1
+
+label-open = 
+;label-open = 
+label-open-foreground = ${colors.secondary}
+label-close =  cancel
+label-close-foreground = ${colors.secondary}
+label-separator = |
+label-separator-foreground = ${colors.foreground-alt}
+
+menu-0-0 = reboot
+menu-0-0-exec = menu-open-1
+menu-0-1 = power off
+menu-0-1-exec = menu-open-2
+
+menu-1-0 = cancel
+menu-1-0-exec = menu-open-0
+menu-1-1 = reboot
+menu-1-1-exec = reboot
+
+menu-2-0 = power off
+menu-2-0-exec = poweroff
+menu-2-1 = cancel
+menu-2-1-exec = menu-open-0
+
+[module/weather]
+type = custom/script
+exec = ~/.config/i3blocks/weather/weather.sh
+interval = 1800
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+
+[module/updates-pacman-aurhelper]
+type = custom/script
+exec = ~/.config/polybar/updates-pacman-aurhelper.sh
+format-prefix = " "
+format-prefix-foreground = ${colors.foreground-alt}
+format-underline = #fba922
+interval = 600
+
+[settings]
+screenchange-reload = true
+;compositing-background = xor
+;compositing-background = screen
+;compositing-foreground = source
+;compositing-border = over
+;pseudo-transparency = false
+
+[global/wm]
+margin-top = 5
+margin-bottom = 5
+
+; vim:ft=dosini
